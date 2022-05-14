@@ -12,19 +12,19 @@ import (
 )
 
 func main() {
-	friends_file, err := os.Open("../friends.json")
+	friendsFile, err := os.Open("../friends.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	Data := []types.Friend{}
-	if err := json.NewDecoder(friends_file).Decode(&Data); err != nil {
+	AllFriends := []types.Friend{}
+	if err := json.NewDecoder(friendsFile).Decode(&AllFriends); err != nil {
 		log.Fatal(err)
 	}
 
-	for _, friend := range Data {
+	for _, friend := range AllFriends {
 		log.Println(friend.Id)
-		result, err := GetMutalFriends(friend)
+		result, err := GetMutalFriends(friend.Id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,8 +37,12 @@ func main() {
 	}
 }
 
-func GetMutalFriends(friend types.Friend) (*http.Response, error) {
-	url := fmt.Sprintf("https://discord.com/api/v9/users/%s/relationships", friend.Id)
+func GetMutalFriends(id string) (*http.Response, error) {
+	url := fmt.Sprintf("https://discord.com/api/v9/users/%s/relationships", id)
+	return SendDiscordGETRequest(url)
+}
+
+func SendDiscordGETRequest(url string) (*http.Response, error) {
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	req.Header.Set("Authorization", os.Getenv("DISCORD_TOKEN"))
 
@@ -47,8 +51,6 @@ func GetMutalFriends(friend types.Friend) (*http.Response, error) {
 		log.Fatal(err)
 		return nil, err
 	}
-
-	defer result.Body.Close()
 
 	return result, nil
 }
@@ -62,5 +64,7 @@ func CreateFriendFile(fileName string, result io.ReadCloser) error {
 	defer out.Close()
 
 	io.Copy(out, result)
+	defer result.Close()
+
 	return nil
 }
