@@ -8,11 +8,13 @@ import (
 	"os"
 	"strings"
 
+	"github.com/joho/godotenv"
+
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
 func GetAllFriends(session neo4j.Session) {
-	Data := GetFriendDataFromJsonFile("./friends.json")
+	Data := GetFriendDataFromJsonFile("./DataScrape/raw/friends.json")
 
 	log.Println(len(Data))
 	for _, friend := range Data {
@@ -38,7 +40,15 @@ func GetFriendDataFromJsonFile(fileName string) []types.Friend {
 }
 
 func main() {
-	driver, session, err := Connect("bolt://localhost:7687", "neo4j", "test")
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	driver, session, err := Connect(
+		os.Getenv("URI"),
+		os.Getenv("USERNAME"),
+		os.Getenv("PASSWORD"))
 	if err != nil {
 		log.Fatal(err)
 	}

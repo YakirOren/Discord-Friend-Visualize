@@ -4,25 +4,32 @@
 
 <img src="assets/graph.svg" width="60%" alt="final-graph">
 
-### SetUp
+### Setup 🔧
 
-All the scraped data is saved to json files and saved to neo4j.
+* All the scraped data is first saved to json files and then saved to neo4j.
 
-0. Add env variable with your personal Discord token
 
-`export DISCORD_TOKEN=<your_token>`
+0. Use neo4j Aura or run locally with Docker
 
-2. First get all the friends.
+`bash ./init.sh`
 
-`go run ./DataScrape/getAllFriends.go`
 
-2. For each friend get the mutual friends
+1. Create an .env file with your credentials
 
-`go run ./DataScrape/getMutualFriends.go`
+```
+DISCORD_TOKEN=""
+URI=""
+USERNAME=""
+PASSWORD=""
+```
 
-3. Use neoj Aura or run locally with Docker
+2. get all the friends and their mutual friends.
 
-`bash ./ne4jdb.sh`
+`go run ./DataScrape/scrape.go`
+
+3. get your user data
+
+`go run ./DataScrape/getOwnData.go`
 
 4. Insert it all into neo4j and visualize
 
